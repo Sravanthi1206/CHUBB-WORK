@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename compilation unit &apos;model.Package.java&apos; to &apos;DeliveryPackage.java&apos;&#x0D;&#x0A;- Original project: &apos;SmartShip&apos;&#x0D;&#x0A;- Original element: &apos;model.Package.java&apos;&#x0D;&#x0A;- Renamed element: &apos;model.DeliveryPackage.java&apos;" description="Rename compilation unit &apos;Package.java&apos;" flags="2" id="org.eclipse.jdt.ui.rename.compilationunit" input="/src&lt;model{Package.java" name="DeliveryPackage.java" references="false" stamp="1761392053321" version="1.0"/>
+</session>

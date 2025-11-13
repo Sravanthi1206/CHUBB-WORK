@@ -1,0 +1,147 @@
+package com.app.features;
+
+import com.app.dto.Account;
+import com.app.dto.Beneficiary;
+
+// Imports for Stream API
+import java.util.ArrayList;
+import java.util.Arrays; // Added for Arrays.asList
+import java.util.Comparator; // Added for sorting
+import java.util.List;
+import java.util.Map; // Added for Map
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream; // Added for Stream.of
+
+public class PaymentOps {
+
+    public static void main(String args[]) {
+        
+        // --- Existing Fund Transfer Logic ---
+        Account acct1 = new Account("Main User", "342432424424", 1000.00);
+        Account acct2 = new Account("Friend Acct", "987654321000", 500.00);
+        
+        System.out.println("--- Setup ---");
+        System.out.println(acct1.getName() + " - No: " + acct1.accoutNo() + " | Balance: " + acct1.balance());
+        System.out.println(acct2.getName() + " - No: " + acct2.accoutNo() + " | Balance: " + acct2.balance());
+        
+        System.out.println("\n--- Adding Beneficiary ---");
+        Beneficiary friendBeneficiary = new Beneficiary("My Friend", "987654321000");
+        acct1.addBeneficiary(friendBeneficiary);
+        
+        System.out.println("\n--- Transferring 200.00... ---");
+        PaymentOps ops = new PaymentOps();
+        ops.fundTransfer(acct1, acct2, 200.00);
+
+        
+        // --- Existing Stream API Examples ---
+        System.out.println("\n\n--- Stream API Examples ---");
+        
+        // Create a list of accounts
+        List<Account> accountList = new ArrayList<>();
+        accountList.add(acct1);
+        accountList.add(acct2);
+        accountList.add(new Account("James", "342424242", 453535));
+        accountList.add(new Account("Keyon", "342424234", 500000));
+
+        // Predicate, Consumer, and Function
+        Predicate<Account> prt = acct -> acct.getName().startsWith("J");
+        Consumer<Account> con = acct -> System.out.println("Holder: " + acct.getName() + ", Balance: " + acct.balance());
+        Function<Account, String> funcobj = acct -> acct.getName();
+        
+        // Example: filter (using Predicate) and forEach (using Consumer)
+        System.out.println("\nAccounts starting with 'J':");
+        accountList.stream()
+            .filter(prt)
+            .forEach(con);
+
+        // --- NEW SECTION: More Stream Examples (Sorting & Maps) ---
+        
+        System.out.println("\n\n--- More Stream Examples (Sorting & Maps) ---");
+
+        // The line 'var companymap = new HashMap<String,List<Customer>>();'
+        // from your image requires a 'Customer' class, which we don't have.
+        // The examples below use our 'Account' class.
+
+        // Sorting by Account Number (String)
+        System.out.println("\n--- Sorting by Account Number ---");
+        List<Account> sortedByAccountNo = accountList.stream()
+            .sorted(Comparator.comparing(Account::accoutNo))
+            .collect(Collectors.toList());
+        sortedByAccountNo.forEach(a -> System.out.println("  " + a.accoutNo() + " | " + a.getName()));
+
+        // Sorting by Balance (Double)
+        System.out.println("\n--- Sorting by Balance ---");
+        accountList.stream()
+            .sorted(Comparator.comparingDouble(Account::balance))
+            .forEach(a -> System.out.println("  " + a.getName() + ": " + a.balance()));
+
+        // Filtering by Balance > 2000
+        System.out.println("\n--- Filtering: Accounts with balance > 2000 ---");
+        accountList.stream()
+            .filter(p -> p.balance() > 2000)
+            .forEach(a -> System.out.println("  " + a.getName() + " has " + a.balance()));
+
+        // Sorting an Integer Stream
+        System.out.println("\n--- Sorting an Integer Stream ---");
+        Stream<Integer> strIn = Stream.of(1, 2, 3, 4123, 67, 34, 120);
+        strIn.sorted()
+            .forEach(a -> System.out.println("  sorted value: " + a));
+            
+        // --- Collecting to Maps (based on your comments) ---
+        System.out.println("\n--- Collecting to Maps ---");
+
+        // Map 1: Key = Account Number (String), Value = Account (Object)
+        // This is a very common and useful pattern.
+        System.out.println("Map 1 (Key=AccountNumber, Value=Account Object):");
+        Map<String, Account> accountMapByNumber = accountList.stream()
+            .collect(Collectors.toMap(
+                Account::accoutNo,  // Key mapper
+                Function.identity() // Value mapper (the object itself)
+            ));
+        accountMapByNumber.forEach((key, value) -> System.out.println("  Key: " + key + ", Value: " + value.getName()));
+
+        // Map 2: Key = Name (String), Value = Account (Object)
+        // From your comment: "map which is holding name and accounts"
+        // Note: This will fail if two accounts have the same name.
+        System.out.println("\nMap 2 (Key=Name, Value=Account Object):");
+        Map<String, Account> accountMapByName = accountList.stream()
+            .collect(Collectors.toMap(
+                Account::getName,
+                Function.identity(),
+                (existing, replacement) -> existing // Merge function for duplicate keys
+            ));
+        accountMapByName.forEach((key, value) -> System.out.println("  Key: " + key + ", Value: " + value.accoutNo()));
+        
+        // Map 3: Key = Account (Object), Value = Account Number (String)
+        // From your comment: "key is account object and value will be account no"
+        System.out.println("\nMap 3 (Key=Account Object, Value=AccountNumber String):");
+        Map<Account, String> accountMapByObject = accountList.stream()
+            .collect(Collectors.toMap(
+                Function.identity(), // Key mapper
+                Account::accoutNo    // Value mapper
+            ));
+        accountMapByObject.forEach((key, value) -> System.out.println("  Key (Object): " + key.getName() + ", Value (String): " + value));
+    }
+
+
+    // --- Fund Transfer Method (Unchanged) ---
+    public boolean fundTransfer(Account fromAcct, Account toAcct, double amount) {
+        
+        if (amount <= 0) {
+            System.out.println("Error: Transfer amount must be positive.");
+            return false;
+        }
+
+        if (fromAcct.balance() >= amount) {
+            fromAcct.setBalance(fromAcct.balance() - amount);
+            toAcct.setBalance(toAcct.balance() + amount);
+            return true;
+        } else {
+            System.out.println("Error: Insufficient funds in account " + fromAcct.accoutNo());
+            return false;
+        }
+    }
+}

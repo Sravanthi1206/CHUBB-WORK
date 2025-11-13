@@ -1,0 +1,52 @@
+package com.app.dto;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Account {
+
+    private String name; // <-- ADDED
+    private String accountNumber;
+    private double balance;
+    private List<Beneficiary> beneficiaries;
+
+    // --- Constructor Updated ---
+    public Account(String name, String accountNumber, double initialBalance) {
+        this.name = name; // <-- ADDED
+        this.accountNumber = accountNumber;
+        this.balance = initialBalance;
+        this.beneficiaries = new ArrayList<>();
+    }
+
+    // --- New Getter ---
+    public String getName() {
+        return this.name;
+    }
+
+    public String accoutNo() {
+        return this.accountNumber;
+    }
+
+    public double balance() {
+        return this.balance;
+    }
+
+    public void setBalance(double newBalance) {
+        this.balance = newBalance;
+    }
+
+    public void addBeneficiary(Beneficiary beneficiary) {
+        for (Beneficiary b : beneficiaries) {
+            if (b.getAccountNumber().equals(beneficiary.getAccountNumber())) {
+                System.out.println("Beneficiary with account " + beneficiary.getAccountNumber() + " already exists.");
+                return;
+            }
+        }
+        this.beneficiaries.add(beneficiary);
+        System.out.println("Successfully added beneficiary: " + beneficiary.getNickName());
+    }
+
+    public List<Beneficiary> getBeneficiaries() {
+        return this.beneficiaries;
+    }
+}

@@ -1,0 +1,20 @@
+package com.app.dto;
+
+public class Beneficiary {
+
+    private String nickName;
+    private String accountNumber;
+
+    public Beneficiary(String nickName, String accountNumber) {
+        this.nickName = nickName;
+        this.accountNumber = accountNumber;
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+}

@@ -1,0 +1,66 @@
+stages:
+  - build
+  - test
+  - package
+  - run
+
+image: maven:3.9.8-eclipse-temurin-17
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+
+cache:
+  paths:
+    - .m2/repository
+
+before_script:
+  - echo "Starting CI/CD pipeline for BankingTrainingApp"
+  - mkdir -p .m2/repository
+  - echo "Checking Java and Maven versions:"
+  - java -version
+  - mvn -v
+
+# 🏗️ Stage 1 — Build
+build-job:
+  stage: build
+  script:
+    - cd BankingTrainingApp
+    - mvn clean compile
+  artifacts:
+    paths:
+      - BankingTrainingApp/target/
+    expire_in: 1 week
+
+# 🧪 Stage 2 — Test
+test-job:
+  stage: test
+  dependencies:
+    - build-job
+  script:
+    - cd BankingTrainingApp
+    - mvn test
+
+# 📦 Stage 3 — Package
+package-job:
+  stage: package
+  dependencies:
+    - build-job
+  script:
+    - cd BankingTrainingApp
+    - mvn clean package -DskipTests
+    - echo "Package complete — contents of target directory:"
+    - ls -la target
+  artifacts:
+    paths:
+      - BankingTrainingApp/target/*.jar
+    expire_in: 1 week
+
+# ▶️ Stage 4 — Run Main Class
+run-job:
+  stage: run
+  dependencies:
+    - package-job
+  script:
+    - cd BankingTrainingApp
+    - echo "Running main class: com.app.features.PaymentOps"
+    - java -cp target/* com.app.features.PaymentOps

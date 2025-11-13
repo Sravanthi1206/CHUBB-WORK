@@ -1,0 +1,111 @@
+package com.app.features;
+
+import com.app.dto.Account;
+import com.app.dto.Beneficiary;
+
+// Imports for Stream API
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+public class PaymentOps {
+
+    public static void main(String args[]) {
+        
+
+        // Updated constructors to include names
+        Account acct1 = new Account("Main User", "342432424424", 1000.00);
+        Account acct2 = new Account("Friend Acct", "987654321000", 500.00);
+
+        System.out.println("--- Setup ---");
+        System.out.println(acct1.getName() + " - No: " + acct1.accoutNo() + " | Balance: " + acct1.balance());
+        System.out.println(acct2.getName() + " - No: " + acct2.accoutNo() + " | Balance: " + acct2.balance());
+        
+        System.out.println("\n--- Adding Beneficiary ---");
+        Beneficiary friendBeneficiary = new Beneficiary("My Friend", "987654321000");
+        acct1.addBeneficiary(friendBeneficiary);
+        
+        System.out.println("\n--- Transferring 200.00 to Beneficiary 'My Friend'... ---");
+        
+        PaymentOps ops = new PaymentOps();
+        boolean success = ops.fundTransfer(acct1, acct2, 200.00);
+
+        if (success) {
+            System.out.println("Transfer to beneficiary successful!");
+        } else {
+            System.out.println("Transfer to beneficiary failed.");
+        }
+
+        // --- NEW SECTION: Stream API Examples from your image ---
+        
+        System.out.println("\n\n--- Stream API Examples ---");
+        
+        // 1. Create a list of accounts
+        List<Account> accountList = new ArrayList<>();
+        accountList.add(acct1);
+        accountList.add(acct2);
+        // Add accounts from your image
+        accountList.add(new Account("James", "342424242", 453535));
+        accountList.add(new Account("Keyon", "342424234", 500000));
+
+        // 2. Define Predicate, Consumer, and Function
+        // Predicate: Finds accounts where holder's name starts with "J"
+        Predicate<Account> prt = acct -> acct.getName().startsWith("J");
+
+        // Consumer: Prints the account holder's name and balance
+        Consumer<Account> con = acct -> System.out.println("Holder: " + acct.getName() + ", Balance: " + acct.balance());
+
+        // Function: Maps an Account object to its name (String)
+        Function<Account, String> funcobj = acct -> acct.getName();
+        
+        // 3. Use the stream operations
+        
+        // Example 1: filter 
+        System.out.println("\nAccounts starting with 'J' (inline):");
+        accountList.stream()
+            .filter(acct -> acct.getName().startsWith("J"))
+            .forEach(acct -> System.out.println(acct.getName()));
+
+        // Example 2: filter (using Predicate) and forEach (using Consumer)
+        System.out.println("\nAccounts starting with 'J' (using predefined Predicate/Consumer):");
+        accountList.stream()
+            .filter(prt)
+            .forEach(con);
+            
+        // Example 3: map (using Function) and count
+        long count = accountList.stream()
+            .map(funcobj)
+            .count();
+        System.out.println("\nTotal number of accounts: " + count);
+
+        // Example 4: map (using Function) and collect to a new List
+        List<String> accountNames = accountList.stream()
+            .map(funcobj)
+            .collect(Collectors.toList());
+        System.out.println("All account names: " + accountNames);
+    }
+
+    // --- Fund Transfer Method (Unchanged) ---
+    public boolean fundTransfer(Account fromAcct, Account toAcct, double amount) {
+        
+        if (amount <= 0) {
+            System.out.println("Error: Transfer amount must be positive.");
+            return false;
+        }
+
+        if (fromAcct.balance() >= amount) {
+            
+            fromAcct.setBalance(fromAcct.balance() - amount);
+            toAcct.setBalance(toAcct.balance() + amount);
+            
+            return true;
+            
+        } else {
+            System.out.println("Error: Insufficient funds in account " + fromAcct.accoutNo());
+            return false;
+        }
+    }
+}

@@ -1,0 +1,22 @@
+package com.app.work;
+
+import java.util.Optional;
+
+public class OptionalEmailDemo {
+    public static void main(String[] args) {
+        
+        // Case 1: Email exists
+        String email = "user@example.com";
+        Optional<String> optionalEmail = Optional.ofNullable(email);
+
+        // Print email if present, else print default message
+        System.out.println(optionalEmail.orElse("No email provided"));
+
+        //  Case 2: Email is null
+        String email2 = null;
+        Optional<String> optionalEmail2 = Optional.ofNullable(email2);
+
+        // Prints default since email is null
+        System.out.println(optionalEmail2.orElse("No email provided"));
+    }
+}
